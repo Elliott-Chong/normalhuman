@@ -24,8 +24,133 @@ model Account {
     id     String @id @default(cuid())
     userId String
 
-    token    String @unique
-    provider String
+    binaryIndex Bytes?
 
-    user User @relation(fields: [userId], references: [id])
+    token        String @unique
+    provider     String
+    emailAddress String
+    name         String
+
+    nextDeltaToken String?
+
+    user           User           @relation(fields: [userId], references: [id])
+    threads        Thread[]
+    emailAddresses EmailAddress[]
+}
+
+//     // "dev": "next dev --turbo | egrep -v '^\\s?(GET|POST|OPTIONS)'",
+
+model Thread {
+    id              String   @id @default(cuid())
+    subject         String
+    lastMessageDate DateTime
+    participantIds  String[]
+    accountId       String
+    account         Account  @relation(fields: [accountId], references: [id])
+
+    done Boolean @default(false)
+
+    inboxStatus Boolean @default(true)
+    draftStatus Boolean @default(false)
+    sentStatus  Boolean @default(false)
+
+    emails Email[]
+
+    @@index([accountId])
+    @@index([done])
+    @@index([inboxStatus])
+    @@index([draftStatus])
+    @@index([sentStatus])
+    @@index([lastMessageDate])
+}
+
+model Email {
+    id                   String                @id @default(cuid())
+    threadId             String
+    thread               Thread                @relation(fields: [threadId], references: [id])
+    createdTime          DateTime
+    lastModifiedTime     DateTime
+    sentAt               DateTime
+    receivedAt           DateTime
+    internetMessageId    String
+    subject              String
+    sysLabels            String[]
+    keywords             String[]
+    sysClassifications   String[]
+    sensitivity          Sensitivity           @default(normal)
+    meetingMessageMethod MeetingMessageMethod?
+    from                 EmailAddress          @relation("FromEmail", fields: [fromId], references: [id])
+    fromId               String
+    to                   EmailAddress[]        @relation("ToEmails")
+    cc                   EmailAddress[]        @relation("CcEmails")
+    bcc                  EmailAddress[]        @relation("BccEmails")
+    replyTo              EmailAddress[]        @relation("ReplyToEmails")
+    hasAttachments       Boolean
+    body                 String?
+    bodySnippet          String?
+    attachments          EmailAttachment[]
+    inReplyTo            String?
+    references           String?
+    threadIndex          String?
+    internetHeaders      Json[]
+    nativeProperties     Json?
+    folderId             String?
+    omitted              String[]
+
+    emailLabel EmailLabel @default(inbox)
+
+    @@index([threadId])
+    @@index([emailLabel])
+    @@index([sentAt])
+}
+
+enum EmailLabel {
+    inbox
+    sent
+    draft
+}
+
+model EmailAddress {
+    id            String  @id @default(cuid())
+    name          String?
+    address       String  @unique
+    raw           String?
+    sentEmails    Email[] @relation("FromEmail")
+    receivedTo    Email[] @relation("ToEmails")
+    receivedCc    Email[] @relation("CcEmails")
+    receivedBcc   Email[] @relation("BccEmails")
+    replyToEmails Email[] @relation("ReplyToEmails")
+
+    accountId String
+    account   Account @relation(fields: [accountId], references: [id])
+
+    @@unique([accountId, address])
+}
+
+model EmailAttachment {
+    id              String  @id @default(cuid())
+    name            String
+    mimeType        String
+    size            Int
+    inline          Boolean
+    contentId       String?
+    content         String?
+    contentLocation String?
+    Email           Email   @relation(fields: [emailId], references: [id])
+    emailId         String
+}
+
+enum Sensitivity {
+    normal
+    private
+    personal
+    confidential
+}
+
+enum MeetingMessageMethod {
+    request
+    reply
+    cancel
+    counter
+    other
 }
