@@ -62,6 +62,7 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
         }
 
         const upsertedAddresses: (Awaited<ReturnType<typeof upsertEmailAddress>> | null)[] = [];
+        console.log('upserting addresses', JSON.stringify(addressesToUpsert.values(), null, 2))
         for (const address of addressesToUpsert.values()) {
             const upsertedAddress = await upsertEmailAddress(address, accountId);
             upsertedAddresses.push(upsertedAddress);
