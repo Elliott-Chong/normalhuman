@@ -27,6 +27,7 @@ export class OramaManager {
                 schema: {
                     title: "string",
                     body: "string",
+                    rawBody: "string",
                     from: 'string',
                     to: 'string[]',
                     sentAt: 'string',
@@ -44,7 +45,6 @@ export class OramaManager {
     }
 
     async vectorSearch({ prompt, numResults = 10 }: { prompt: string, numResults?: number }) {
-        console.log('vector search', this.orama)
         const embeddings = await getEmbeddings(prompt)
         const results = await search(this.orama, {
             mode: 'hybrid',
