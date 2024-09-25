@@ -1,4 +1,5 @@
 'use client'
+import TurndownService from 'turndown'
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -17,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import useThreads from "../../use-threads"
 import { useThread } from "../../use-thread"
+import { turndown } from '@/lib/turndown'
 
 type Props = {
     onGenerate: (value: string) => void
@@ -32,8 +34,9 @@ const AIComposeButton = (props: Props) => {
     const aiGenerate = async (prompt: string) => {
         let context: string | undefined = ''
         if (!props.isComposing) {
-            context = thread?.emails.map(m => `Subject: ${m.subject}\nFrom: ${m.from.address}\n\n${m.body}`).join('\n')
+            context = thread?.emails.map(m => `Subject: ${m.subject}\nFrom: ${m.from.address}\n\n${turndown.turndown(m.body ?? m.bodySnippet ?? '')}`).join('\n')
         }
+
         const { output } = await generateEmail(context + `\n\nMy name is: ${account?.name}`, prompt)
 
         for await (const delta of readStreamableValue(output)) {

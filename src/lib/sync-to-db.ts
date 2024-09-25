@@ -4,6 +4,7 @@ import pLimit from 'p-limit';
 import { Prisma } from '@prisma/client';
 import { OramaManager } from './orama';
 import { getEmbeddings } from './embeddings';
+import { turndown } from './turndown';
 
 async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
     console.log(`Syncing ${emails.length} emails to database`);
@@ -15,11 +16,12 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
     await Promise.all(
         [Promise.all(emails.map(email => {
             return limit(async () => {
-                const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${email.bodySnippet}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
+                const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
+                const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
                 const bodyEmbedding = await getEmbeddings(payload);
                 await oramaClient.insert({
                     title: email.subject,
-                    body: email.bodySnippet,
+                    body: body,
                     from: `${email.from.name} <${email.from.address}>`,
                     to: email.to.map(t => `${t.name} <${t.address}>`),
                     sentAt: new Date(email.sentAt).toLocaleString(),
