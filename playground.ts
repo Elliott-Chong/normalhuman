@@ -31,11 +31,12 @@ const emails = await db.email.findMany({
 })
 await Promise.all(emails.map(async email => {
     const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
-    console.log(body)
+    // console.log(body)
     const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
     const bodyEmbedding = await getEmbeddings(payload);
     await orama.insert({
         title: email.subject,
+        rawBody: email.bodySnippet ?? '',
         body: body,
         from: `${email.from.name} <${email.from.address}>`,
         to: email.to.map(t => `${t.name} <${t.address}>`),

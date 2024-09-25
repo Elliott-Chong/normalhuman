@@ -22,7 +22,7 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
                 await oramaClient.insert({
                     title: email.subject,
                     body: body,
-                    rawBody: email.bodySnippet ?? email.body ?? '',
+                    rawBody: email.bodySnippet ?? '',
                     from: `${email.from.name} <${email.from.address}>`,
                     to: email.to.map(t => `${t.name} <${t.address}>`),
                     sentAt: new Date(email.sentAt).toLocaleString(),

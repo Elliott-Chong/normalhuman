@@ -50,7 +50,7 @@ const SearchDisplay = () => {
                             <p className="text-sm text-gray-500">
                                 To: {hit.document.to.join(", ")}
                             </p>
-                            <p className="text-sm mt-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(hit.document.body, { USE_PROFILES: { html: true } }) }} />
+                            <p className="text-sm mt-2" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(hit.document.rawBody, { USE_PROFILES: { html: true } }) }} />
                         </li>
                     ))}
                 </ul>
