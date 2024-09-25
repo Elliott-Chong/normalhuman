@@ -1,49 +1,26 @@
-// import { db } from "@/server/db";
+const addressesToUpsert = new Map()
+const email = {
+    from: { address: 'elliott@useincubate.com', name: 'Elliott Chong' },
+    to: [{ address: 'gmansoor@technologyrivers.com', name: 'Ghazenfer Mansoor' }],
+    cc: [],
+    bcc: [],
+    replyTo: [],
+}
+const all = [email.from, ...email.to, ...email.cc, ...email.bcc, ...email.replyTo]
+// console.log('all', JSON.stringify(all, null, 2))
+for (const address of all) {
+    addressesToUpsert.set(address.address, address);
+}
+for (const address of addressesToUpsert.values()) {
+    console.log('address', address)
+}
 
-import { getEmbeddings } from "@/lib/embeddings";
-import { OramaManager } from "@/lib/orama";
-import { turndown } from "@/lib/turndown";
-import { db } from "@/server/db";
+// console.log('addressesToUpsert', JSON.stringify(addressesToUpsert.entries(), null, 2))
 
-// await db.email.deleteMany({
-//     where: { thread: { accountId: '68392' } }
-// })
+// const upsertedAddresses: (Awaited<ReturnType<typeof upsertEmailAddress>> | null)[] = [];
+// console.log('upserting addresses', JSON.stringify(addressesToUpsert.values(), null, 2))
 
-const orama = new OramaManager('68406')
-await orama.initialize()
-
-const emails = await db.email.findMany({
-    where: {
-        thread: {
-            accountId: '68406'
-        },
-    }
-    , select: {
-        id: true,
-        threadId: true,
-        subject: true,
-        bodySnippet: true,
-        from: true,
-        to: true,
-        sentAt: true,
-        body: true
-    }
-})
-await Promise.all(emails.map(async email => {
-    const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
-    // console.log(body)
-    const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
-    const bodyEmbedding = await getEmbeddings(payload);
-    await orama.insert({
-        title: email.subject,
-        rawBody: email.bodySnippet ?? '',
-        body: body,
-        from: `${email.from.name} <${email.from.address}>`,
-        to: email.to.map(t => `${t.name} <${t.address}>`),
-        sentAt: new Date(email.sentAt).toLocaleString(),
-        embeddings: bodyEmbedding,
-        threadId: email.threadId
-    })
-}))
-
-await orama.saveIndex()
+// for (const address of addressesToUpsert.values()) {
+//     const upsertedAddress = await upsertEmailAddress(address, accountId);
+//     upsertedAddresses.push(upsertedAddress);
+// }
