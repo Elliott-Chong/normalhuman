@@ -56,16 +56,13 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
         }
 
         // 1. Upsert EmailAddress records
-        const addressesToUpsert = new Set([
-            email.from,
-            ...email.to,
-            ...email.cc,
-            ...email.bcc,
-            ...email.replyTo
-        ]);
+        const addressesToUpsert = new Map();
+        for (const address of [email.from, ...email.to, ...email.cc, ...email.bcc, ...email.replyTo]) {
+            addressesToUpsert.set(address.address, address);
+        }
 
         const upsertedAddresses: (Awaited<ReturnType<typeof upsertEmailAddress>> | null)[] = [];
-        for (const address of addressesToUpsert) {
+        for (const address of addressesToUpsert.values()) {
             const upsertedAddress = await upsertEmailAddress(address, accountId);
             upsertedAddresses.push(upsertedAddress);
         }
