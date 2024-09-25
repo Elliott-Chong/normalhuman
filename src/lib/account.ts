@@ -68,7 +68,11 @@ class Account {
         if (!response) throw new Error("Failed to sync emails")
 
 
-        await syncEmailsToDatabase(allEmails, account.id)
+        try {
+            await syncEmailsToDatabase(allEmails, account.id)
+        } catch (error) {
+            console.log('error', error)
+        }
 
         // console.log('syncEmails', response)
         await db.account.update({

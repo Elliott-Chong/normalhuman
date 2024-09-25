@@ -13,26 +13,30 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
     const oramaClient = new OramaManager(accountId)
     oramaClient.initialize()
 
-    await Promise.all(
-        [Promise.all(emails.map(email => {
-            return limit(async () => {
-                const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
-                const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
-                const bodyEmbedding = await getEmbeddings(payload);
-                await oramaClient.insert({
-                    title: email.subject,
-                    body: body,
-                    rawBody: email.bodySnippet ?? '',
-                    from: `${email.from.name} <${email.from.address}>`,
-                    to: email.to.map(t => `${t.name} <${t.address}>`),
-                    sentAt: new Date(email.sentAt).toLocaleString(),
-                    embeddings: bodyEmbedding,
-                    threadId: email.threadId
+    try {
+        await Promise.all(
+            [Promise.all(emails.map(email => {
+                return limit(async () => {
+                    const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
+                    const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
+                    const bodyEmbedding = await getEmbeddings(payload);
+                    await oramaClient.insert({
+                        title: email.subject,
+                        body: body,
+                        rawBody: email.bodySnippet ?? '',
+                        from: `${email.from.name} <${email.from.address}>`,
+                        to: email.to.map(t => `${t.name} <${t.address}>`),
+                        sentAt: new Date(email.sentAt).toLocaleString(),
+                        embeddings: bodyEmbedding,
+                        threadId: email.threadId
+                    })
                 })
-            })
-        })),
-        Promise.all(emails.map((email, index) => limit(() => upsertEmail(email, index, accountId))))]
-    )
+            })),
+            Promise.all(emails.map((email, index) => limit(() => upsertEmail(email, index, accountId))))]
+        )
+    } catch (error) {
+        console.log('error', error)
+    }
 
     await oramaClient.saveIndex()
 }
@@ -70,7 +74,7 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
 
         const fromAddress = addressMap.get(email.from.address);
         if (!fromAddress) {
-            console.error(`Failed to upsert from address for email ${email.id}`);
+            console.log(`Failed to upsert from address for email ${email.id}`);
             return;
         }
 
@@ -208,9 +212,9 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
         }
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            console.error(`Prisma error for email ${email.id}: ${error.message}`);
+            console.log(`Prisma error for email ${email.id}: ${error.message}`);
         } else {
-            console.error(`Unknown error for email ${email.id}: ${error}`);
+            console.log(`Unknown error for email ${email.id}: ${error}`);
         }
     }
 }
@@ -223,7 +227,7 @@ async function upsertEmailAddress(address: EmailAddress, accountId: string) {
             create: { address: address.address ?? "", name: address.name, raw: address.raw, accountId },
         });
     } catch (error) {
-        console.error(`Failed to upsert email address: ${error}`);
+        console.log(`Failed to upsert email address: ${error}`);
         return null;
     }
 }
@@ -254,7 +258,7 @@ async function upsertAttachment(emailId: string, attachment: EmailAttachment) {
             },
         });
     } catch (error) {
-        console.error(`Failed to upsert attachment for email ${emailId}: ${error}`);
+        console.log(`Failed to upsert attachment for email ${emailId}: ${error}`);
     }
 }
 
