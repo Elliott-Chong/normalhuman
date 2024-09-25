@@ -21,7 +21,7 @@ export class OramaManager {
         if (!account) throw new Error('Account not found');
 
         if (account.binaryIndex) {
-            this.orama = await restore('dpack', account.binaryIndex as Buffer);
+            this.orama = await restore('json', account.binaryIndex as any);
         } else {
             this.orama = await create({
                 schema: {
@@ -29,7 +29,7 @@ export class OramaManager {
                     body: "string",
                     from: 'string',
                     to: 'string[]',
-                    sentAt: 'number',
+                    sentAt: 'string',
                     embeddings: 'vector[1536]',
                     threadId: 'string'
                 },
@@ -43,15 +43,16 @@ export class OramaManager {
         await this.saveIndex();
     }
 
-    async vectorSearch({ prompt, numResults = 5 }: { prompt: string, numResults?: number }) {
+    async vectorSearch({ prompt, numResults = 10 }: { prompt: string, numResults?: number }) {
         const embeddings = await getEmbeddings(prompt)
         const results = await search(this.orama, {
-            mode: 'vector',
+            mode: 'hybrid',
+            term: prompt,
             vector: {
                 value: embeddings,
                 property: 'embeddings'
             },
-            similarity: 0.75,
+            similarity: 0.80,
             limit: numResults
         })
         // console.log(results.hits.map(hit => hit.document))
@@ -64,7 +65,7 @@ export class OramaManager {
     }
 
     async saveIndex() {
-        const index = await persist(this.orama, 'dpack');
+        const index = await persist(this.orama, 'json');
         await db.account.update({
             where: { id: this.accountId },
             data: { binaryIndex: index as Buffer }

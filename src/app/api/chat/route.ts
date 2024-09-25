@@ -1,9 +1,6 @@
 import { Configuration, OpenAIApi } from "openai-edge";
 import { Message, OpenAIStream, StreamingTextResponse } from "ai";
-// import { getContext } from "@/lib/context";
-// import { db } from "@/lib/db";
-// import { chats, messages as _messages } from "@/lib/db/schema";
-// import { eq } from "drizzle-orm";
+
 import { NextResponse } from "next/server";
 import { OramaManager } from "@/lib/orama";
 import { db } from "@/server/db";
@@ -50,30 +47,10 @@ export async function POST(req: Request) {
 
         const lastMessage = messages[messages.length - 1]
 
-        const initialPrompt = `You are a RAG agent made to create prompt to retrieve information from the user's email.
-        The user will ask a question and you will need to create a prompt to retrieve the information they need.
-        The user will also provide you with the message context.
-        You will need to use the message context to create the prompt.
-        Your output will be used as part of a RAG search, so make sure to include the necessary information to retrieve the relevant information even if you don't know the answer.`
 
-        const initialResponse = await (await openai.createChatCompletion({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "system",
-                    content: initialPrompt
-                },
-                ...messages
-            ],
-        })).json();
-
-
-        const initialPromptResponse = initialResponse.choices[0].message.content
-        console.log(initialPromptResponse)
-
-
-        const context = await oramaManager.vectorSearch({ prompt: lastMessage.content + initialPromptResponse })
+        const context = await oramaManager.vectorSearch({ prompt: lastMessage.content })
         console.log(context.hits.length + ' hits found')
+        // console.log(context.hits.map(hit => hit.document))
 
         const prompt = {
             role: "system",
