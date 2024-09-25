@@ -14,7 +14,7 @@ const StripeButton = () => {
 
     const handleClick = async () => {
         if (!isSubscribed) {
-            await createCheckoutSession({ priceId: 'price_1Q2jRMCX8JozYLp3UJuSske0' })
+            await createCheckoutSession()
         } else {
             await createBillingPortalSession()
         }

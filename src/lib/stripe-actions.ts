@@ -5,11 +5,7 @@ import { stripe } from "./stripe";
 import { redirect } from "next/navigation";
 import { db } from "@/server/db";
 
-export async function createCheckoutSession({
-    priceId,
-}: {
-    priceId: string;
-}) {
+export async function createCheckoutSession() {
     const { userId } = await auth();
 
     if (!userId) {
@@ -20,7 +16,7 @@ export async function createCheckoutSession({
         payment_method_types: ['card'],
         line_items: [
             {
-                price: priceId,
+                price: process.env.STRIPE_PRICE_ID,
                 quantity: 1,
             },
         ],
