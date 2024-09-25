@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         }
         const { messages, accountId } = await req.json();
         const oramaManager = new OramaManager(accountId)
-        oramaManager.initialize()
+        await oramaManager.initialize()
 
         const lastMessage = messages[messages.length - 1]
 
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
 
         const response = await openai.createChatCompletion({
-            model: "gpt-4o-mini",
+            model: "gpt-4",
             messages: [
                 prompt,
                 ...messages.filter((message: Message) => message.role === "user"),

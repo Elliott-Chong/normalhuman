@@ -206,7 +206,7 @@ export function ThreadDisplay() {
       {isSearching ? <SearchDisplay /> : <>
 
         {thread ? (
-          <div className="flex flex-col flex-1">
+          <div className="flex flex-col flex-1 overflow-scroll">
             <div className="flex items-start p-4">
               <div className="flex items-start gap-4 text-sm">
                 <Avatar>

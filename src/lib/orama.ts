@@ -44,6 +44,7 @@ export class OramaManager {
     }
 
     async vectorSearch({ prompt, numResults = 10 }: { prompt: string, numResults?: number }) {
+        console.log('vector search', this.orama)
         const embeddings = await getEmbeddings(prompt)
         const results = await search(this.orama, {
             mode: 'hybrid',
@@ -53,7 +54,11 @@ export class OramaManager {
                 property: 'embeddings'
             },
             similarity: 0.80,
-            limit: numResults
+            limit: numResults,
+            // hybridWeights: {
+            //     text: 0.8,
+            //     vector: 0.2,
+            // }
         })
         // console.log(results.hits.map(hit => hit.document))
         return results

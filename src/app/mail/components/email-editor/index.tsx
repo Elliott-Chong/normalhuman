@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import TagInput from "./tag-input";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useLocalStorage } from "usehooks-ts";
+import { Bot } from "lucide-react";
+import AIComposeButton from "./ai-compose-button";
 
 type EmailEditorProps = {
     toValues: { label: string, value: string }[];
@@ -39,6 +41,7 @@ const EmailEditor = ({ toValues, ccValues, subject, setSubject, to, handleSend, 
     const [ref] = useAutoAnimate();
     const [accountId] = useLocalStorage('accountId', '');
     const { data: suggestions } = api.mail.getEmailSuggestions.useQuery({ accountId: accountId, query: '' }, { enabled: !!accountId });
+
 
     const [expanded, setExpanded] = React.useState(defaultToolbarExpand ?? false);
 
@@ -124,13 +127,19 @@ const EmailEditor = ({ toValues, ccValues, subject, setSubject, to, handleSend, 
                         <Input id="subject" className="w-full" placeholder="Subject" value={subject} onChange={e => setSubject(e.target.value)} />
                     </>
                 )}
-                <div className="cursor-pointer" onClick={() => setExpanded(e => !e)}>
-                    <span className="text-green-600 font-medium">
-                        Draft{' '}
-                    </span>
-                    <span>
-                        to {to.join(', ')}
-                    </span>
+                <div className="flex items-center gap-2">
+                    <div className="cursor-pointer" onClick={() => setExpanded(e => !e)}>
+                        <span className="text-green-600 font-medium">
+                            Draft{' '}
+                        </span>
+                        <span>
+                            to {to.join(', ')}
+                        </span>
+                    </div>
+                    <AIComposeButton
+                        isComposing={defaultToolbarExpand}
+                        onGenerate={setGeneration}
+                    />
                 </div>
             </div>
 
