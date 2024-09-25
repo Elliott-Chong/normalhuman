@@ -17,7 +17,41 @@ model User {
     lastName     String
     imageUrl     String?
 
+    stripeSubscriptionId String?             @unique
+    stripeSubscription   StripeSubscription? @relation(fields: [stripeSubscriptionId], references: [id])
+
     accounts Account[]
+
+    chatbotInteraction ChatbotInteraction?
+}
+
+model ChatbotInteraction {
+    id String @id @default(cuid())
+
+    day   String
+    count Int    @default(1)
+
+    userId String? @unique
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@unique([day, userId])
+    @@index([day, userId])
+}
+
+model StripeSubscription {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    userId String? @unique
+    user   User?
+
+    subscriptionId String? @unique
+    productId      String?
+    priceId        String?
+    customerId     String?
+
+    currentPeriodEnd DateTime
+    updatedAt        DateTime @updatedAt
 }
 
 model Account {

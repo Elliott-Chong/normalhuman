@@ -1,0 +1,1 @@
+export const FREE_CREDITS_PER_DAY = 15

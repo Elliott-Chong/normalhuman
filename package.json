@@ -97,6 +97,7 @@
     "recharts": "^2.12.7",
     "server-only": "^0.0.1",
     "sonner": "^1.5.0",
+    "stripe": "^16.12.0",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",

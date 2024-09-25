@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import { getEmailDetails } from "@/lib/aurinko";
 import type { Prisma } from "@prisma/client";
 import { emailAddressSchema } from "@/lib/types";
+import { FREE_CREDITS_PER_DAY } from "@/app/constants";
 
 export const authoriseAccountAccess = async (accountId: string, userId: string) => {
     const account = await db.account.findFirst({
@@ -335,5 +336,17 @@ export const mailRouter = createTRPCRouter({
     })).query(async ({ ctx, input }) => {
         const account = await authoriseAccountAccess(input.accountId, ctx.auth.userId)
         return account
+    }),
+    getChatbotInteraction: protectedProcedure.query(async ({ ctx }) => {
+        const chatbotInteraction = await ctx.db.chatbotInteraction.findUnique({
+            where: {
+                day: new Date().toDateString(),
+                userId: ctx.auth.userId
+            }, select: { count: true }
+        })
+        const remainingCredits = FREE_CREDITS_PER_DAY - (chatbotInteraction?.count || 0)
+        return {
+            remainingCredits
+        }
     }),
 });

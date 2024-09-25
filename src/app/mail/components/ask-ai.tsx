@@ -8,6 +8,9 @@ import { Send } from 'lucide-react';
 import { useLocalStorage } from 'usehooks-ts';
 import { cn } from '@/lib/utils';
 import { SparklesIcon } from '@heroicons/react/24/solid';
+import StripeButton from './stripe-button';
+import PremiumBanner from './premium-banner';
+import { toast } from 'sonner';
 
 
 const transitionDebug = {
@@ -20,6 +23,11 @@ const AskAI = ({ isCollapsed }: { isCollapsed: boolean }) => {
         api: "/api/chat",
         body: {
             accountId,
+        },
+        onError: (error) => {
+            if (error.message.includes('Limit reached')) {
+                toast.error('You have reached the limit for today. Please upgrade to pro to ask as many questions as you want')
+            }
         },
         initialMessages: [],
     });
@@ -37,16 +45,8 @@ const AskAI = ({ isCollapsed }: { isCollapsed: boolean }) => {
     if (isCollapsed) return null;
     return (
         <div className='p-4 mb-14'>
-            <motion.div layout className="bg-gray-900 relative p-4 rounded-lg border overflow-hidden flex flex-col md:flex-row gap-4">
-                <img src='/bot.webp' className='md:absolute md:-bottom-6 md:-right-10 h-[180px] w-auto' />
-                <div>
-                    <h1 className='text-white text-xl font-semibold'>Premium Plan</h1>
-                    <div className="h-2"></div>
-                    <p className='text-gray-400 text-sm md:max-w-[calc(100%-70px)]'>Ask AI anything about your emails</p>
-                    <div className="h-4"></div>
-                    <Button variant={'outline'} size='lg'>Upgrade Plan</Button>
-                </div>
-            </motion.div>
+
+            <PremiumBanner />
             <div className="h-4"></div>
             <motion.div className="flex flex-1 flex-col items-end justify-end pb-4 border p-4 rounded-lg bg-gray-100 shadow-inner dark:bg-gray-900">
                 <div className="max-h-[50vh] overflow-y-scroll w-full flex flex-col gap-2" id='message-container'>

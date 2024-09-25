@@ -83,6 +83,7 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
                 subject: email.subject,
                 accountId,
                 lastMessageDate: new Date(email.sentAt),
+                done: false,
                 participantIds: [...new Set([
                     fromAddress.id,
                     ...toAddresses.map(a => a!.id),
