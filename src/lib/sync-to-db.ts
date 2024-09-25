@@ -223,17 +223,25 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
 
 async function upsertEmailAddress(address: EmailAddress, accountId: string) {
     try {
-        return await db.emailAddress.upsert({
+        const existingAddress = await db.emailAddress.findUnique({
             where: { accountId_address: { accountId: accountId, address: address.address ?? "" } },
-            update: { name: address.name, raw: address.raw },
-            create: { address: address.address ?? "", name: address.name, raw: address.raw, accountId },
         });
+
+        if (existingAddress) {
+            return await db.emailAddress.update({
+                where: { id: existingAddress.id },
+                data: { name: address.name, raw: address.raw },
+            });
+        } else {
+            return await db.emailAddress.create({
+                data: { address: address.address ?? "", name: address.name, raw: address.raw, accountId },
+            });
+        }
     } catch (error) {
         console.log(`Failed to upsert email address: ${error}`);
         return null;
     }
 }
-
 async function upsertAttachment(emailId: string, attachment: EmailAttachment) {
     try {
         await db.emailAttachment.upsert({
