@@ -42,7 +42,7 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
 }
 
 async function upsertEmail(email: EmailMessage, index: number, accountId: string) {
-    console.log(`Upserting email ${index + 1}`);
+    console.log(`Upserting email ${index + 1}`, JSON.stringify(email, null, 2));
     try {
 
         // determine email label type
