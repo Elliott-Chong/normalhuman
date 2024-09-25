@@ -35,8 +35,12 @@ export function AccountSwitcher({
         action: {
           label: 'Add account',
           onClick: async () => {
-            const url = await getAurinkoAuthorizationUrl('Google')
-            window.location.href = url
+            try {
+              const url = await getAurinkoAuthorizationUrl('Google')
+              window.location.href = url
+            } catch (error) {
+              toast.error((error as Error).message)
+            }
           }
         },
       })
@@ -80,8 +84,12 @@ export function AccountSwitcher({
           </SelectItem>
         ))}
         <div onClick={async (e) => {
-          const url = await getAurinkoAuthorizationUrl('Google')
-          window.location.href = url
+          try {
+            const url = await getAurinkoAuthorizationUrl('Google')
+            window.location.href = url
+          } catch (error) {
+            toast.error((error as Error).message)
+          }
         }} className="relative flex hover:bg-gray-50 w-full cursor-pointer items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
           <Plus className="size-4 mr-1" />
           Add account
