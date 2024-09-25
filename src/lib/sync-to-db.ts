@@ -34,11 +34,11 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
             })),
             Promise.all(emails.map((email, index) => limit(() => upsertEmail(email, index, accountId))))]
         )
+        await oramaClient.saveIndex()
     } catch (error) {
         console.log('error', error)
     }
 
-    await oramaClient.saveIndex()
 }
 
 async function upsertEmail(email: EmailMessage, index: number, accountId: string) {
@@ -64,9 +64,11 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
             ...email.replyTo
         ]);
 
-        const upsertedAddresses = await Promise.all(
-            Array.from(addressesToUpsert).map(address => upsertEmailAddress(address, accountId))
-        );
+        const upsertedAddresses: (Awaited<ReturnType<typeof upsertEmailAddress>> | null)[] = [];
+        for (const address of addressesToUpsert) {
+            const upsertedAddress = await upsertEmailAddress(address, accountId);
+            upsertedAddresses.push(upsertedAddress);
+        }
 
         const addressMap = new Map(
             upsertedAddresses.filter(Boolean).map(address => [address!.address, address])
@@ -74,7 +76,7 @@ async function upsertEmail(email: EmailMessage, index: number, accountId: string
 
         const fromAddress = addressMap.get(email.from.address);
         if (!fromAddress) {
-            console.log(`Failed to upsert from address for email ${email.id}`);
+            console.log(`Failed to upsert from address for email ${email.bodySnippet}`);
             return;
         }
 
