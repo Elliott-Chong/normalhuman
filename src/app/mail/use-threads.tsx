@@ -20,6 +20,7 @@ const useThreads = () => {
         isFetching,
         account: accounts?.find((account) => account.id === accountId),
         refetch,
+        accounts,
         queryKey,
         accountId
     }
