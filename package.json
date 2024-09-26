@@ -21,6 +21,7 @@
     "@heroicons/react": "^2.1.5",
     "@hookform/resolvers": "^3.9.0",
     "@lucia-auth/adapter-prisma": "^4.0.1",
+    "@orama/orama": "^2.1.1",
     "@orama/plugin-data-persistence": "^2.1.1",
     "@orama/plugin-match-highlight": "^2.1.1",
     "@prisma/client": "^5.14.0",

@@ -14,8 +14,9 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
     oramaClient.initialize()
 
     try {
-        await Promise.all(
-            [Promise.all(emails.map(email => {
+
+        async function syncToOrama() {
+            await Promise.all(emails.map(email => {
                 return limit(async () => {
                     const body = turndown.turndown(email.body ?? email.bodySnippet ?? '')
                     const payload = `From: ${email.from.name} <${email.from.address}>\nTo: ${email.to.map(t => `${t.name} <${t.address}>`).join(', ')}\nSubject: ${email.subject}\nBody: ${body}\n SentAt: ${new Date(email.sentAt).toLocaleString()}`
@@ -31,9 +32,17 @@ async function syncEmailsToDatabase(emails: EmailMessage[], accountId: string) {
                         threadId: email.threadId
                     })
                 })
-            })),
-            Promise.all(emails.map((email, index) => limit(() => upsertEmail(email, index, accountId))))]
-        )
+            }))
+        }
+
+        async function syncToDB() {
+            for (const [index, email] of emails.entries()) {
+                await upsertEmail(email, index, accountId);
+            }
+        }
+
+        await Promise.all([syncToOrama(), syncToDB()])
+
         await oramaClient.saveIndex()
     } catch (error) {
         console.log('error', error)
