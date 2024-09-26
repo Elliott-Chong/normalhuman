@@ -20,9 +20,16 @@ model User {
     stripeSubscriptionId String?             @unique
     stripeSubscription   StripeSubscription? @relation(fields: [stripeSubscriptionId], references: [id])
 
+    role Role @default(user)
+
     accounts Account[]
 
     chatbotInteraction ChatbotInteraction?
+}
+
+enum Role {
+    user
+    admin
 }
 
 model ChatbotInteraction {
