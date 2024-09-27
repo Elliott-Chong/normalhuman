@@ -26,7 +26,7 @@ export function ThreadList() {
   const { selectedThreadIds, visualMode } = useVim();
 
   const groupedThreads = threads?.reduce((acc, thread) => {
-    const date = format(thread.emails[0]?.sentAt ?? new Date(), "yyyy-MM-dd");
+    const date = format(thread.lastMessageDate ?? new Date(), "yyyy-MM-dd");
     if (!acc[date]) {
       acc[date] = [];
     }
