@@ -1,4 +1,4 @@
-![Build and Deploy Full Stack ChatPDF Clone](https://github.com/Elliott-Chong/chatpdf-yt/assets/77007117/7fcee290-ca52-46ee-ae82-3490f505270b)
+![Full Stack Chat PDF Clone](https://github.com/user-attachments/assets/03580ec6-99f0-4f3e-8a0d-141e15d2e17b)
 
 [Link to YouTube Tutorial]([https://www.youtube.com/watch?v=bZFedu-0emE](https://youtu.be/Qm7-7PnszM4))
 
