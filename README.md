@@ -1,10 +1,3 @@
-![Full Stack Chat PDF Clone](https://github.com/user-attachments/assets/03580ec6-99f0-4f3e-8a0d-141e15d2e17b)
-
-[Link to YouTube Tutorial]([https://www.youtube.com/watch?v=bZFedu-0emE](https://youtu.be/Qm7-7PnszM4))
-
-# Overview
-
-Welcome to this comprehensive full-stack tutorial where we build and deploy a fully featured AI powered email client using NextJS 14. Join me as we build an entire project from the ground up and seamlessly deploy it to Vercel 🚀. The application also includes a subscription feature, where users can subscribe to access premium features. The subscription process is handled using Stripe for payments and webhooks for event processing.
 
 
 # Technologies and Frameworks
